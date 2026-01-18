@@ -1,116 +1,91 @@
-import { Subject } from "../types";
+import { GraduationCap, School } from "lucide-react";
 
-export const DEPARTMENTS = [
-  "Computer Science",
-  "Mathematics",
-  "Physics",
-  "Chemistry",
-  "Biology",
-  "English",
+export const USER_ROLES = {
+    STUDENT: "student",
+    TEACHER: "teacher",
+    ADMIN: "admin",
+};
+
+export const ROLE_OPTIONS = [
+    {
+        value: USER_ROLES.STUDENT,
+        label: "Student",
+        icon: GraduationCap,
+    },
+    {
+        value: USER_ROLES.TEACHER,
+        label: "Teacher",
+        icon: School,
+    },
 ];
 
-export const DEPARTMENTS_OPTIONS = DEPARTMENTS.map((dept) => {
-  return {
+export const DEPARTMENTS = [
+    "Computer Science",
+    "Mathematics",
+    "Physics",
+    "Chemistry",
+    "Biology",
+    "English",
+    "History",
+    "Geography",
+    "Economics",
+    "Business Administration",
+    "Engineering",
+    "Psychology",
+    "Sociology",
+    "Political Science",
+    "Philosophy",
+    "Education",
+    "Fine Arts",
+    "Music",
+    "Physical Education",
+    "Law",
+] as const;
+
+export const DEPARTMENT_OPTIONS = DEPARTMENTS.map((dept) => ({
     value: dept,
     label: dept,
-  };
-});
+}));
 
-export const MOCK_SUBJECTS: Subject[] = [
-  {
-    id: 1,
-    code: "CS101",
-    name: "Introduction to Computer Science",
-    department: "Computer Science",
-    description: "Fundamental concepts of programming, algorithms, and computational thinking.",
-    createdAt: "2024-09-01T00:00:00Z",
-  },
-  {
-    id: 2,
-    code: "CS201",
-    name: "Data Structures and Algorithms",
-    department: "Computer Science",
-    description: "Study of arrays, lists, trees, graphs, sorting, searching, and algorithm analysis.",
-    createdAt: "2024-09-01T00:00:00Z",
-  },
-  {
-    id: 3,
-    code: "MATH101",
-    name: "Calculus I",
-    department: "Mathematics",
-    description: "Limits, derivatives, integrals, and applications to real-world problems.",
-    createdAt: "2024-09-01T00:00:00Z",
-  },
-  {
-    id: 4,
-    code: "PHYS101",
-    name: "Physics I",
-    department: "Physics",
-    description: "Mechanics, energy, and motion with an emphasis on problem solving.",
-    createdAt: "2024-09-01T00:00:00Z",
-  },
-  {
-    id: 5,
-    code: "CHEM101",
-    name: "General Chemistry",
-    department: "Chemistry",
-    description: "Atomic structure, stoichiometry, thermochemistry, and chemical reactions.",
-    createdAt: "2024-09-01T00:00:00Z",
-  },
-  {
-    id: 6,
-    code: "BIO101",
-    name: "Introduction to Biology",
-    department: "Biology",
-    description: "Cell structure, genetics, evolution, and ecology fundamentals.",
-    createdAt: "2024-09-01T00:00:00Z",
-  },
-  {
-    id: 7,
-    code: "ENG101",
-    name: "English Composition",
-    department: "English",
-    description: "Writing, critical reading, and rhetoric for academic contexts.",
-    createdAt: "2024-09-01T00:00:00Z",
-  },
-  {
-    id: 8,
-    code: "HIST201",
-    name: "World History",
-    department: "History",
-    description: "Key events, movements, and themes that shaped the modern world.",
-    createdAt: "2024-09-01T00:00:00Z",
-  },
-  {
-    id: 9,
-    code: "ECON101",
-    name: "Principles of Economics",
-    department: "Economics",
-    description: "Microeconomics and macroeconomics fundamentals and real-world applications.",
-    createdAt: "2024-09-01T00:00:00Z",
-  },
-  {
-    id: 10,
-    code: "PSY101",
-    name: "Introduction to Psychology",
-    department: "Psychology",
-    description: "Overview of psychological science, behavior, cognition, and research methods.",
-    createdAt: "2024-09-01T00:00:00Z",
-  },
-  {
-    id: 11,
-    code: "ENGR210",
-    name: "Engineering Mechanics",
-    department: "Engineering",
-    description: "Statics, dynamics, and the analysis of forces in engineering systems.",
-    createdAt: "2024-09-01T00:00:00Z",
-  },
-  {
-    id: 12,
-    code: "STAT200",
-    name: "Probability and Statistics",
-    department: "Mathematics",
-    description: "Probability theory, distributions, estimation, and hypothesis testing.",
-    createdAt: "2024-09-01T00:00:00Z",
-  },
+export const MAX_FILE_SIZE = 3 * 1024 * 1024; // 3MB in bytes
+export const ALLOWED_TYPES = [
+    "image/png",
+    "image/jpeg",
+    "image/jpg",
+    "image/webp",
+];
+
+const getEnvVar = (key: string): string => {
+    const value = import.meta.env[key];
+    if (!value) {
+        throw new Error(`Missing environment variable: ${key}`);
+    }
+    return value;
+};
+
+// export const CLOUDINARY_UPLOAD_URL = getEnvVar("VITE_CLOUDINARY_UPLOAD_URL");
+// export const CLOUDINARY_CLOUD_NAME = getEnvVar("VITE_CLOUDINARY_CLOUD_NAME");
+export const BACKEND_BASE_URL = getEnvVar("VITE_BACKEND_BASE_URL");
+
+export const BASE_URL =  import.meta.env.VITE_API_URL;
+export const ACCESS_TOKEN_KEY = import.meta.env.VITE_ACCESS_TOKEN_KEY
+export const REFRESH_TOKEN_KEY = import.meta.env.VITE_REFRESH_TOKEN_KEY
+
+export const REFRESH_TOKEN_URL = `${BASE_URL}/refresh-token`;
+
+// export const CLOUDINARY_UPLOAD_PRESET = getEnvVar("VITE_CLOUDINARY_UPLOAD_PRESET");
+
+export const teachers = [
+    {
+        id: "1",
+        name: "John Doe",
+    },
+    {
+        id: "2",
+        name: "Jane Smith",
+    },
+    {
+        id: "3",
+        name: "Dr. Alan Turing",
+    },
 ];

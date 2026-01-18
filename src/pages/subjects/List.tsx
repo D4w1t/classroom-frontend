@@ -19,7 +19,7 @@ import { Badge } from "@/components/ui/badge";
 
 import { SearchIcon } from "lucide-react";
 
-import { DEPARTMENTS_OPTIONS } from "@/constants";
+import { DEPARTMENT_OPTIONS } from "@/constants";
 
 import { Subject } from "@/types";
 import { ColumnDef } from "@tanstack/react-table";
@@ -70,7 +70,7 @@ const SubjectList = () => {
         },
         {
           id: "department",
-          accessorKey: "department",
+          accessorKey: "department.name",
           size: 150,
           header: () => <p className="column-title ml-2">Department</p>,
           cell: ({ getValue }) => (
@@ -135,7 +135,7 @@ const SubjectList = () => {
               <SelectContent>
                 <SelectItem value="All">All Departments</SelectItem>
 
-                {DEPARTMENTS_OPTIONS.map((department, index) => {
+                {DEPARTMENT_OPTIONS.map((department, index) => {
                   return (
                     <SelectItem key={index} value={department.value}>
                       {department.label}
