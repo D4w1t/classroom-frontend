@@ -61,7 +61,7 @@ const ClassList = () => {
       ? []
       : [
           {
-            field: "user",
+            field: "teacher",
             operator: "eq" as const,
             value: selectedTeacher,
           },
@@ -132,15 +132,16 @@ const ClassList = () => {
           size: 100,
           header: () => <p className="column-title ml-2">Status</p>,
           cell: ({ getValue }) => {
-            let status = getValue<string>();
-            status = status.charAt(0).toUpperCase() + status.slice(1);
+            const rawStatus = getValue<string>() ?? "";
+            const status =
+              rawStatus.charAt(0).toUpperCase() + rawStatus.slice(1);
             return (
               <Badge variant={status === "Active" ? "default" : "secondary"}>
-                {status}
+                {status || "N/A"}
               </Badge>
             );
           },
-        }
+        },
       ],
       [],
     ),
@@ -189,7 +190,7 @@ const ClassList = () => {
 
                 {teachers.map((teacher) => {
                   return (
-                    <SelectItem key={teacher.id} value={teacher.name}>
+                    <SelectItem key={teacher.id} value={teacher.id}>
                       {teacher.name}
                     </SelectItem>
                   );
