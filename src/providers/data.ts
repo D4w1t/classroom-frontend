@@ -56,6 +56,12 @@ const options: CreateDataProviderOptions = {
           return;
         }
 
+        if (resource === "classes") {
+          if (field === "name") params.search = value;
+          if (field === "subject") params.subject = value;
+          if (field === "teacher") params.teacher = value;
+        }
+
         if (resource === "users") {
           // Map exact role filters to ?role=teacher
           if (
