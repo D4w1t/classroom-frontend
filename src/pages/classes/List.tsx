@@ -24,6 +24,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { useList } from "@refinedev/core";
 
 import { DEPARTMENT_OPTIONS } from "@/constants";
+import { ShowButton } from "@/components/refine-ui/buttons/show";
 
 const ClassList = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -149,7 +150,7 @@ const ClassList = () => {
         {
           id: "status",
           accessorKey: "status",
-          size: 100,
+          size: 60,
           header: () => <p className="column-title ml-2">Status</p>,
           cell: ({ getValue }) => {
             const rawStatus = getValue<string>() ?? "";
@@ -161,6 +162,21 @@ const ClassList = () => {
               </Badge>
             );
           },
+        },
+        {
+          id: "details",
+          size: 60,
+          header: () => <p className="column-title">Details</p>,
+          cell: ({ row }) => (
+            <ShowButton
+              resource="classes"
+              recordItemId={row.original.id}
+              variant="outline"
+              size="sm"
+            >
+              View
+            </ShowButton>
+          ),
         },
       ],
       [],

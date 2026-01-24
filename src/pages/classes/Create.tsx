@@ -37,7 +37,7 @@ import { Loader2 } from "lucide-react";
 import UploadWidget from "@/components/upload-widget";
 import { Subject, User } from "@/types";
 
-const Create = () => {
+const ClassCreate = () => {
   const back = useBack();
 
   const form = useForm({
@@ -343,4 +343,4 @@ const Create = () => {
   );
 };
 
-export default Create;
+export default ClassCreate;
