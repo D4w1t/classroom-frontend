@@ -12,13 +12,17 @@ import { useNotificationProvider } from "./components/refine-ui/notification/use
 import { ThemeProvider } from "./components/refine-ui/theme/theme-provider";
 import { dataProvider } from "./providers/data";
 
-import Dashboard from "./pages/Dashboard";
 import { BookOpen, GraduationCap, Home } from "lucide-react";
 import { Layout } from "./components/refine-ui/layout/layout";
+
+import Dashboard from "./pages/Dashboard";
+
 import SubjectList from "./pages/subjects/List";
 import SubjectCreate from "./pages/subjects/Create";
+
 import ClassList from "./pages/classes/List";
 import ClassCreate from "./pages/classes/Create";
+import ClassShow from "./pages/classes/Show";
 
 function App() {
   const customTitleHandler = ({ resource, action }: any) => {
@@ -69,6 +73,7 @@ function App() {
                 name: "classes",
                 list: "/classes",
                 create: "/classes/create",
+                show: "/classes/show/:id",
                 meta: {
                   label: "Classes",
                   icon: <GraduationCap />,
@@ -85,17 +90,18 @@ function App() {
                 }
               >
                 <Route path="/" element={<Dashboard />} />
-                
-                // Subject Route
+
+                {/* Subjects Route */}
                 <Route path="subjects">
                   <Route index element={<SubjectList />} />
                   <Route path="create" element={<SubjectCreate />} />
                 </Route>
 
-                // Classes Route
+                {/* Classes Route */}
                 <Route path="classes">
                   <Route index element={<ClassList />} />
                   <Route path="create" element={<ClassCreate />} />
+                  <Route path="show/:id" element={<ClassShow />} />
                 </Route>
               </Route>
             </Routes>
