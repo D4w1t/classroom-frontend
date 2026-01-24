@@ -1,8 +1,7 @@
 import { createDataProvider, CreateDataProviderOptions } from "@refinedev/rest";
 
 import { BACKEND_BASE_URL } from "@/constants";
-import { CreateResponse, ListResponse } from "@/types";
-import { GetOneResponse } from "@refinedev/core";
+import { CreateResponse, ListResponse, GetOneResponse } from "@/types";
 
 interface HttpError {
   message: string;

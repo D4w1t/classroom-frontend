@@ -61,17 +61,19 @@ const ClassShow = () => {
     );
   }
 
-  const upperStatus = status.charAt(0).toUpperCase() + status.slice(1);
+  const upperStatus = status
+    ? status.charAt(0).toUpperCase() + status.slice(1)
+    : "N\\A";
 
   return (
     <ShowView className="class-view class-show">
       <ShowViewHeader resource="classes" title="Class Details" />
 
       <div className="banner">
-        {bannerUrl ? (
+        {bannerUrl && bannerCldPubId ? (
           <AdvancedImage
             alt="Class Banner"
-            cldImg={bannerPhoto(bannerCldPubId ?? "", name)}
+            cldImg={bannerPhoto(bannerCldPubId, name)}
           />
         ) : (
           <div className="placeholder" />
@@ -86,7 +88,7 @@ const ClassShow = () => {
           </div>
 
           <div>
-            <Badge variant="outline">{capacity} spots</Badge>
+            <Badge variant="outline">{capacity ?? 0} spots</Badge>
             <Badge
               variant={upperStatus === "Active" ? "default" : "secondary"}
               data-status={upperStatus}
