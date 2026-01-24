@@ -7,6 +7,30 @@ export type Subject = {
   createdAt?: string;
 };
 
+export enum classStatus {
+  ACTIVE = "active",
+  INACTIVE = "inactive",
+  COMPLETED = "completed",
+}
+
+export type Class = {
+  id: number;
+  name: string;
+  description: string;
+  status: classStatus;
+  capacity: number;
+  courseCode: string;
+  courseName: string;
+  bannerUrl?: string;
+  bannerCldPubId?: string;
+  subject?: Subject;
+  teacher?: User;
+  department?: Department;
+  schedules: Schedule[];
+  inviteCode: string;
+  createdAt?: string;
+};
+
 export type ListResponse<T = unknown> = {
   data?: T[];
   pagination?: {
@@ -99,7 +123,7 @@ export type ClassDetails = {
   id: number;
   name: string;
   description: string;
-  status: "active" | "inactive";
+  status: classStatus;
   capacity: number;
   courseCode: string;
   courseName: string;
