@@ -19,16 +19,17 @@ import { Badge } from "@/components/ui/badge";
 
 import { SearchIcon } from "lucide-react";
 
-import { DEPARTMENT_OPTIONS } from "@/constants";
-
 import { Class, Subject, User } from "@/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { useList } from "@refinedev/core";
+
+import { DEPARTMENT_OPTIONS } from "@/constants";
 
 const ClassList = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSubject, setSelectedSubject] = useState("All");
   const [selectedTeacher, setSelectedTeacher] = useState("All");
+  const [selectedDepartment, setSelectedDepartment] = useState("All");
 
   const { query: teachersQuery } = useList<User>({
     resource: "users",
@@ -64,6 +65,16 @@ const ClassList = () => {
             field: "teacher",
             operator: "eq" as const,
             value: selectedTeacher,
+          },
+        ];
+  const departmentFilters =
+    selectedDepartment === "All"
+      ? []
+      : [
+          {
+            field: "department",
+            operator: "eq" as const,
+            value: selectedDepartment,
           },
         ];
   const searchFilters = searchQuery
@@ -127,6 +138,15 @@ const ClassList = () => {
           ),
         },
         {
+          id: "department",
+          accessorKey: "department.name",
+          size: 100,
+          header: () => <p className="column-title ml-2">Department</p>,
+          cell: ({ getValue }) => (
+            <Badge variant="secondary">{getValue<string>()}</Badge>
+          ),
+        },
+        {
           id: "status",
           accessorKey: "status",
           size: 100,
@@ -149,7 +169,12 @@ const ClassList = () => {
       resource: "classes",
       pagination: { pageSize: 10, mode: "server" },
       filters: {
-        permanent: [...teacherFilters, ...subjectFilters, ...searchFilters],
+        permanent: [
+          ...teacherFilters,
+          ...subjectFilters,
+          ...departmentFilters,
+          ...searchFilters,
+        ],
       },
       sorters: {
         initial: [{ field: "id", order: "desc" }],
@@ -190,7 +215,7 @@ const ClassList = () => {
 
                 {teachers.map((teacher) => {
                   return (
-                    <SelectItem key={teacher.id} value={teacher.id}>
+                    <SelectItem key={teacher.id} value={teacher.name}>
                       {teacher.name}
                     </SelectItem>
                   );
@@ -216,6 +241,26 @@ const ClassList = () => {
               </SelectContent>
             </Select>
 
+            <Select
+              value={selectedDepartment}
+              onValueChange={setSelectedDepartment}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Filter by Department" />
+              </SelectTrigger>
+
+              <SelectContent>
+                <SelectItem value="All">All Departments</SelectItem>
+
+                {DEPARTMENT_OPTIONS.map((dept, index) => {
+                  return (
+                    <SelectItem key={index} value={dept.value}>
+                      {dept.label}
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
             <CreateButton />
           </div>
         </div>
