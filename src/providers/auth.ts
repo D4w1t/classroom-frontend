@@ -116,7 +116,7 @@ export const authProvider: AuthProvider = {
           },
         };
       }
-      
+
       localStorage.removeItem("user");
 
       return {
