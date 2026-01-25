@@ -1,0 +1,240 @@
+import type { AuthProvider } from "@refinedev/core";
+import { User, SignUpPayload } from "@/types";
+
+import { authClient } from "@/lib/auth-client";
+
+export const authProvider: AuthProvider = {
+  register: async ({
+    email,
+    password,
+    name,
+    role,
+    image,
+    imageCldPubId,
+  }: SignUpPayload) => {
+    try {
+      const { data, error } = await authClient.signUp.email({
+        name,
+        email,
+        password,
+        image,
+        role,
+        imageCldPubId,
+      } as SignUpPayload);
+
+      if (error) {
+        return {
+          success: false,
+          error: {
+            name: "Registration failed",
+            message:
+              error?.message || "Unable to create account. Please try again.",
+          },
+        };
+      }
+
+      // Store user data
+      if (data?.user) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+      }
+
+      return {
+        success: true,
+        redirectTo: "/",
+      };
+    } catch (error) {
+      console.error("Register error:", error);
+      return {
+        success: false,
+        error: {
+          name: "Registration failed",
+          message: "Unable to create account. Please try again.",
+        },
+      };
+    }
+  },
+
+  login: async ({ email, password }) => {
+    try {
+      const { data, error } = await authClient.signIn.email({
+        email: email,
+        password: password,
+      });
+
+      if (error) {
+        console.error("Login error from auth client:", error);
+        try {
+          sessionStorage.setItem("auth:lastFailed", String(Date.now()));
+        } catch (e) {
+          /* ignore */
+        }
+        return {
+          success: false,
+          error: {
+            name: "Login failed",
+            message: error?.message || "Please try again later.",
+          },
+        };
+      }
+
+      // Store user data
+      if (data?.user) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+      }
+
+      return {
+        success: true,
+        redirectTo: "/",
+      };
+    } catch (error) {
+      console.error("Login exception:", error);
+      try {
+        sessionStorage.setItem("auth:lastFailed", String(Date.now()));
+      } catch (e) {
+        /* ignore */
+      }
+      return {
+        success: false,
+        error: {
+          name: "Login failed",
+          message: "Please try again later.",
+        },
+      };
+    }
+  },
+  logout: async () => {
+    try {
+      const { error } = await authClient.signOut();
+
+      if (error) {
+        console.error("Logout error:", error);
+        return {
+          success: false,
+          error: {
+            name: "Logout failed",
+            message: "Unable to log out. Please try again.",
+          },
+        };
+      }
+      
+      localStorage.removeItem("user");
+
+      return {
+        success: true,
+        redirectTo: "/login",
+      };
+    } catch (error) {
+      console.error("Logout exception:", error);
+
+      localStorage.removeItem("user");
+      return {
+        success: true,
+        redirectTo: "/login",
+      };
+    }
+  },
+  onError: async (error) => {
+    if (error.response?.status === 401) {
+      return {
+        logout: true,
+      };
+    }
+
+    return { error };
+  },
+  check: async () => {
+    try {
+      const user = localStorage.getItem("user");
+
+      if (user) {
+        (async () => {
+          try {
+            const { data: session } = await authClient.getSession();
+            if (!session?.user) {
+              localStorage.removeItem("user");
+            }
+          } catch (err) {
+            localStorage.removeItem("user");
+          }
+        })();
+
+        return {
+          authenticated: true,
+        };
+      }
+
+      try {
+        const lastFailed = sessionStorage.getItem("auth:lastFailed");
+        if (lastFailed && Date.now() - Number(lastFailed) < 2000) {
+          return { authenticated: false };
+        }
+      } catch (e) {
+        /* ignore */
+      }
+
+      const { data: session } = await authClient.getSession();
+
+      if (session?.user) {
+        return {
+          authenticated: true,
+        };
+      }
+
+      return {
+        authenticated: false,
+        logout: true,
+        redirectTo: "/login",
+        error: {
+          name: "Unauthorized",
+          message: "Check failed",
+        },
+      };
+    } catch (error) {
+      console.error("Session check error:", error);
+      return {
+        authenticated: false,
+        logout: true,
+        redirectTo: "/login",
+        error: {
+          name: "Unauthorized",
+          message: "Check failed",
+        },
+      };
+    }
+  },
+  getPermissions: async () => {
+    const user = localStorage.getItem("user");
+
+    if (!user) return null;
+
+    try {
+      const parsedUser: User = JSON.parse(user);
+
+      return {
+        role: parsedUser.role,
+      };
+    } catch (error) {
+      return null;
+    }
+  },
+  getIdentity: async () => {
+    const user = localStorage.getItem("user");
+
+    if (!user) return null;
+
+    try {
+      const parsedUser: User = JSON.parse(user);
+
+      return {
+        id: parsedUser.id,
+        name: parsedUser.name,
+        email: parsedUser.email,
+        image: parsedUser.image,
+        role: parsedUser.role,
+        imageCldPubId: parsedUser.imageCldPubId,
+      };
+    } catch (error) {
+      return null;
+    }
+  },
+};
