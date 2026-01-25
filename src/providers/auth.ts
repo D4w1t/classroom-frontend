@@ -120,9 +120,9 @@ export const authProvider: AuthProvider = {
   },
   check: async () => {
     try {
-      const session = await authClient.getSession();
+      const { data: session } = await authClient.getSession();
 
-      if (session && (session as any).user) {
+      if (session?.user) {
         return {
           authenticated: true,
         };
