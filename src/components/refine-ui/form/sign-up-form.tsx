@@ -58,36 +58,35 @@ export const SignUpForm = () => {
   const imagePublicId = form.watch("imageCldPubId");
 
   const onSubmit = async (values: RegisterFormValues) => {
-    try {
-      register(
-        {
-          ...values,
-          name: values.name,
-          image: values.image || undefined,
-          imageCldPubId: values.imageCldPubId || undefined,
-        },
-        {
-          onSuccess: (data) => {
-            if (data.success === false) {
-              toast.error(data.error?.message, {
-                richColors: true,
-              });
-              return;
-            }
-
-            toast.success("Account created successfully!", {
+    register(
+      {
+        ...values,
+        name: values.name,
+        image: values.image || undefined,
+        imageCldPubId: values.imageCldPubId || undefined,
+      },
+      {
+        onSuccess: (data) => {
+          if (data.success === false) {
+            toast.error(data.error?.message, {
               richColors: true,
             });
-            form.reset();
-          },
+            return;
+          }
+
+          toast.success("Account created successfully!", {
+            richColors: true,
+          });
+          form.reset();
         },
-      );
-    } catch (error) {
-      console.error("Registration error:", error);
-      toast.error("Registration failed", {
-        richColors: true,
-      });
-    }
+        onError: (error) => {
+          console.error("Registration error:", error);
+          toast.error("Registration failed", {
+            richColors: true,
+          });
+        },
+      },
+    );
   };
 
   return (

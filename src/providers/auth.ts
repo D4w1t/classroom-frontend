@@ -119,47 +119,70 @@ export const authProvider: AuthProvider = {
     return { error };
   },
   check: async () => {
-    const user = localStorage.getItem("user");
+    try {
+      const session = await authClient.getSession();
 
-    if (user) {
+      if (session && (session as any).user) {
+        return {
+          authenticated: true,
+        };
+      }
+
       return {
-        authenticated: true,
+        authenticated: false,
+        logout: true,
+        redirectTo: "/login",
+        error: {
+          name: "Unauthorized",
+          message: "Check failed",
+        },
+      };
+    } catch (error) {
+      console.error("Session check error:", error);
+      return {
+        authenticated: false,
+        logout: true,
+        redirectTo: "/login",
+        error: {
+          name: "Unauthorized",
+          message: "Check failed",
+        },
       };
     }
-
-    return {
-      authenticated: false,
-      logout: true,
-      redirectTo: "/login",
-      error: {
-        name: "Unauthorized",
-        message: "Check failed",
-      },
-    };
   },
   getPermissions: async () => {
     const user = localStorage.getItem("user");
 
     if (!user) return null;
-    const parsedUser: User = JSON.parse(user);
 
-    return {
-      role: parsedUser.role,
-    };
+    try {
+      const parsedUser: User = JSON.parse(user);
+
+      return {
+        role: parsedUser.role,
+      };
+    } catch (error) {
+      return null;
+    }
   },
   getIdentity: async () => {
     const user = localStorage.getItem("user");
 
     if (!user) return null;
-    const parsedUser: User = JSON.parse(user);
 
-    return {
-      id: parsedUser.id,
-      name: parsedUser.name,
-      email: parsedUser.email,
-      image: parsedUser.image,
-      role: parsedUser.role,
-      imageCldPubId: parsedUser.imageCldPubId,
-    };
+    try {
+      const parsedUser: User = JSON.parse(user);
+
+      return {
+        id: parsedUser.id,
+        name: parsedUser.name,
+        email: parsedUser.email,
+        image: parsedUser.image,
+        role: parsedUser.role,
+        imageCldPubId: parsedUser.imageCldPubId,
+      };
+    } catch (error) {
+      return null;
+    }
   },
 };
