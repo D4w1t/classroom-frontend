@@ -34,9 +34,7 @@ export const authProvider: AuthProvider = {
       }
 
       // Store user data
-      if (data?.user) {
-        localStorage.setItem("user", JSON.stringify(data.user));
-      }
+      localStorage.setItem("user", JSON.stringify(data.user));
 
       return {
         success: true,
@@ -63,11 +61,6 @@ export const authProvider: AuthProvider = {
 
       if (error) {
         console.error("Login error from auth client:", error);
-        try {
-          sessionStorage.setItem("auth:lastFailed", String(Date.now()));
-        } catch (e) {
-          /* ignore */
-        }
         return {
           success: false,
           error: {
@@ -78,9 +71,7 @@ export const authProvider: AuthProvider = {
       }
 
       // Store user data
-      if (data?.user) {
-        localStorage.setItem("user", JSON.stringify(data.user));
-      }
+      localStorage.setItem("user", JSON.stringify(data.user));
 
       return {
         success: true,
@@ -88,11 +79,6 @@ export const authProvider: AuthProvider = {
       };
     } catch (error) {
       console.error("Login exception:", error);
-      try {
-        sessionStorage.setItem("auth:lastFailed", String(Date.now()));
-      } catch (e) {
-        /* ignore */
-      }
       return {
         success: false,
         error: {
@@ -103,35 +89,25 @@ export const authProvider: AuthProvider = {
     }
   },
   logout: async () => {
-    try {
-      const { error } = await authClient.signOut();
+    const { error } = await authClient.signOut();
 
-      if (error) {
-        console.error("Logout error:", error);
-        return {
-          success: false,
-          error: {
-            name: "Logout failed",
-            message: "Unable to log out. Please try again.",
-          },
-        };
-      }
-      
-      localStorage.removeItem("user");
-
+    if (error) {
+      console.error("Logout error:", error);
       return {
-        success: true,
-        redirectTo: "/login",
-      };
-    } catch (error) {
-      console.error("Logout exception:", error);
-
-      localStorage.removeItem("user");
-      return {
-        success: true,
-        redirectTo: "/login",
+        success: false,
+        error: {
+          name: "Logout failed",
+          message: "Unable to log out. Please try again.",
+        },
       };
     }
+
+    localStorage.removeItem("user");
+
+    return {
+      success: true,
+      redirectTo: "/login",
+    };
   },
   onError: async (error) => {
     if (error.response?.status === 401) {
@@ -144,34 +120,6 @@ export const authProvider: AuthProvider = {
   },
   check: async () => {
     try {
-      const user = localStorage.getItem("user");
-
-      if (user) {
-        (async () => {
-          try {
-            const { data: session } = await authClient.getSession();
-            if (!session?.user) {
-              localStorage.removeItem("user");
-            }
-          } catch (err) {
-            localStorage.removeItem("user");
-          }
-        })();
-
-        return {
-          authenticated: true,
-        };
-      }
-
-      try {
-        const lastFailed = sessionStorage.getItem("auth:lastFailed");
-        if (lastFailed && Date.now() - Number(lastFailed) < 2000) {
-          return { authenticated: false };
-        }
-      } catch (e) {
-        /* ignore */
-      }
-
       const { data: session } = await authClient.getSession();
 
       if (session?.user) {
