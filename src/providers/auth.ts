@@ -61,6 +61,11 @@ export const authProvider: AuthProvider = {
 
       if (error) {
         console.error("Login error from auth client:", error);
+        try {
+          sessionStorage.setItem("auth:lastFailed", String(Date.now()));
+        } catch (e) {
+          /* ignore */
+        }
         return {
           success: false,
           error: {
@@ -79,6 +84,11 @@ export const authProvider: AuthProvider = {
       };
     } catch (error) {
       console.error("Login exception:", error);
+      try {
+        sessionStorage.setItem("auth:lastFailed", String(Date.now()));
+      } catch (e) {
+        /* ignore */
+      }
       return {
         success: false,
         error: {
@@ -120,6 +130,34 @@ export const authProvider: AuthProvider = {
   },
   check: async () => {
     try {
+      const user = localStorage.getItem("user");
+
+      if (user) {
+        (async () => {
+          try {
+            const { data: session } = await authClient.getSession();
+            if (!session?.user) {
+              localStorage.removeItem("user");
+            }
+          } catch (err) {
+            localStorage.removeItem("user");
+          }
+        })();
+
+        return {
+          authenticated: true,
+        };
+      }
+
+      try {
+        const lastFailed = sessionStorage.getItem("auth:lastFailed");
+        if (lastFailed && Date.now() - Number(lastFailed) < 2000) {
+          return { authenticated: false };
+        }
+      } catch (e) {
+        /* ignore */
+      }
+
       const { data: session } = await authClient.getSession();
 
       if (session?.user) {
