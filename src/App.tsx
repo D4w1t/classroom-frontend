@@ -1,8 +1,9 @@
-import { Refine } from "@refinedev/core";
+import { Refine, Authenticated } from "@refinedev/core";
 import { RefineKbar, RefineKbarProvider } from "@refinedev/kbar";
 
 import routerProvider, {
   DocumentTitleHandler,
+  NavigateToResource,
   UnsavedChangesNotifier,
 } from "@refinedev/react-router";
 import { BrowserRouter, Outlet, Route, Routes } from "react-router";
@@ -24,6 +25,10 @@ import ClassList from "./pages/classes/List";
 import ClassCreate from "./pages/classes/Create";
 import ClassShow from "./pages/classes/Show";
 
+import { authProvider } from "./providers/auth";
+import { Login } from "./pages/login";
+import { Register } from "./pages/register";
+
 function App() {
   const customTitleHandler = ({ resource, action }: any) => {
     let title = "";
@@ -43,6 +48,7 @@ function App() {
         <ThemeProvider>
           <Refine
             dataProvider={dataProvider}
+            authProvider={authProvider}
             notificationProvider={useNotificationProvider()}
             routerProvider={routerProvider}
             options={{
@@ -84,9 +90,22 @@ function App() {
             <Routes>
               <Route
                 element={
-                  <Layout>
-                    <Outlet />
-                  </Layout>
+                  <Authenticated key="public-routes" fallback={<Outlet />}>
+                    <NavigateToResource fallbackTo="/" />
+                  </Authenticated>
+                }
+              >
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+              </Route>
+
+              <Route
+                element={
+                  <Authenticated key="private-routes" fallback={<Login />}>
+                    <Layout>
+                      <Outlet />
+                    </Layout>
+                  </Authenticated>
                 }
               >
                 <Route path="/" element={<Dashboard />} />
