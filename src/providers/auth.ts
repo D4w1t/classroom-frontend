@@ -34,7 +34,9 @@ export const authProvider: AuthProvider = {
       }
 
       // Store user data
-      localStorage.setItem("user", JSON.stringify(data.user));
+      if (data?.user) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+      }
 
       return {
         success: true,
@@ -61,6 +63,11 @@ export const authProvider: AuthProvider = {
 
       if (error) {
         console.error("Login error from auth client:", error);
+        try {
+          sessionStorage.setItem("auth:lastFailed", String(Date.now()));
+        } catch (e) {
+          /* ignore */
+        }
         return {
           success: false,
           error: {
@@ -71,7 +78,9 @@ export const authProvider: AuthProvider = {
       }
 
       // Store user data
-      localStorage.setItem("user", JSON.stringify(data.user));
+      if (data?.user) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+      }
 
       return {
         success: true,
@@ -79,6 +88,11 @@ export const authProvider: AuthProvider = {
       };
     } catch (error) {
       console.error("Login exception:", error);
+      try {
+        sessionStorage.setItem("auth:lastFailed", String(Date.now()));
+      } catch (e) {
+        /* ignore */
+      }
       return {
         success: false,
         error: {
@@ -89,25 +103,35 @@ export const authProvider: AuthProvider = {
     }
   },
   logout: async () => {
-    const { error } = await authClient.signOut();
+    try {
+      const { error } = await authClient.signOut();
 
-    if (error) {
-      console.error("Logout error:", error);
+      if (error) {
+        console.error("Logout error:", error);
+        return {
+          success: false,
+          error: {
+            name: "Logout failed",
+            message: "Unable to log out. Please try again.",
+          },
+        };
+      }
+
+      localStorage.removeItem("user");
+
       return {
-        success: false,
-        error: {
-          name: "Logout failed",
-          message: "Unable to log out. Please try again.",
-        },
+        success: true,
+        redirectTo: "/login",
+      };
+    } catch (error) {
+      console.error("Logout exception:", error);
+
+      localStorage.removeItem("user");
+      return {
+        success: true,
+        redirectTo: "/login",
       };
     }
-
-    localStorage.removeItem("user");
-
-    return {
-      success: true,
-      redirectTo: "/login",
-    };
   },
   onError: async (error) => {
     if (error.response?.status === 401) {
@@ -119,49 +143,98 @@ export const authProvider: AuthProvider = {
     return { error };
   },
   check: async () => {
-    // const user = localStorage.getItem("user");
+    try {
+      const user = localStorage.getItem("user");
 
-    const { data: session } = await authClient.getSession();
+      if (user) {
+        (async () => {
+          try {
+            const { data: session } = await authClient.getSession();
+            if (!session?.user) {
+              localStorage.removeItem("user");
+            }
+          } catch (err) {
+            localStorage.removeItem("user");
+          }
+        })();
 
-    if (session?.user) {
+        return {
+          authenticated: true,
+        };
+      }
+
+      try {
+        const lastFailed = sessionStorage.getItem("auth:lastFailed");
+        if (lastFailed && Date.now() - Number(lastFailed) < 2000) {
+          return { authenticated: false };
+        }
+      } catch (e) {
+        /* ignore */
+      }
+
+      const { data: session } = await authClient.getSession();
+
+      if (session?.user) {
+        return {
+          authenticated: true,
+        };
+      }
+
       return {
-        authenticated: true,
+        authenticated: false,
+        logout: true,
+        redirectTo: "/login",
+        error: {
+          name: "Unauthorized",
+          message: "Check failed",
+        },
+      };
+    } catch (error) {
+      console.error("Session check error:", error);
+      return {
+        authenticated: false,
+        logout: true,
+        redirectTo: "/login",
+        error: {
+          name: "Unauthorized",
+          message: "Check failed",
+        },
       };
     }
-
-    return {
-      authenticated: false,
-      logout: true,
-      redirectTo: "/login",
-      error: {
-        name: "Unauthorized",
-        message: "Check failed",
-      },
-    };
   },
   getPermissions: async () => {
     const user = localStorage.getItem("user");
 
     if (!user) return null;
-    const parsedUser: User = JSON.parse(user);
 
-    return {
-      role: parsedUser.role,
-    };
+    try {
+      const parsedUser: User = JSON.parse(user);
+
+      return {
+        role: parsedUser.role,
+      };
+    } catch (error) {
+      return null;
+    }
   },
   getIdentity: async () => {
     const user = localStorage.getItem("user");
 
     if (!user) return null;
-    const parsedUser: User = JSON.parse(user);
 
-    return {
-      id: parsedUser.id,
-      name: parsedUser.name,
-      email: parsedUser.email,
-      image: parsedUser.image,
-      role: parsedUser.role,
-      imageCldPubId: parsedUser.imageCldPubId,
-    };
+    try {
+      const parsedUser: User = JSON.parse(user);
+
+      return {
+        id: parsedUser.id,
+        name: parsedUser.name,
+        email: parsedUser.email,
+        image: parsedUser.image,
+        role: parsedUser.role,
+        imageCldPubId: parsedUser.imageCldPubId,
+      };
+    } catch (error) {
+      return null;
+    }
   },
 };
