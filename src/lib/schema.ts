@@ -69,3 +69,11 @@ export const enrollmentSchema = z.object({
     .min(1, "Class ID is required"),
   studentId: z.string().min(1, "Student ID is required"),
 });
+
+export const departmentSchema = z.object({
+  name: z.string().min(4, "Department name must be at least 4 characters"),
+  code: z.string().min(2, "Department code must be at least 2 characters"),
+  description: z
+    .string()
+    .min(5, "Department description must be at least 5 characters"),
+});
