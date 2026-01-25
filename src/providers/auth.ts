@@ -119,9 +119,11 @@ export const authProvider: AuthProvider = {
     return { error };
   },
   check: async () => {
-    const user = localStorage.getItem("user");
+    // const user = localStorage.getItem("user");
 
-    if (user) {
+    const { data: session } = await authClient.getSession();
+
+    if (session?.user) {
       return {
         authenticated: true,
       };
