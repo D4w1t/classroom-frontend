@@ -55,7 +55,7 @@ const Dashboard = () => {
     pagination: { mode: "off" },
   });
 
-  const { query: DepartmetsQuery } = useList<Department>({
+  const { query: DepartmentsQuery } = useList<Department>({
     resource: "departments",
 
     pagination: { mode: "off" },
@@ -69,7 +69,7 @@ const Dashboard = () => {
 
   const users = UsersQuery?.data?.data ?? [];
   const subjects = SubjectsQuery?.data?.data ?? [];
-  const departments = DepartmetsQuery?.data?.data ?? [];
+  const departments = DepartmentsQuery?.data?.data ?? [];
   const classes = ClassesQuery?.data?.data ?? [];
 
   const usersByRole = useMemo(() => {
@@ -183,7 +183,7 @@ const Dashboard = () => {
       accent: "text-cyan-600",
     },
     {
-      label: "classes",
+      label: "Classes",
       value: classes.length,
       icon: Layers,
       accent: "text-rose-600",
