@@ -33,9 +33,22 @@ const buildHttpError = async (response: Response): Promise<HttpError> => {
   };
 };
 
+const buildAuthHeaders = (): Record<string, string> => {
+  const headers: Record<string, string> = {};
+  const token = localStorage.getItem("auth_token");
+
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  return headers;
+};
+
 const options: CreateDataProviderOptions = {
   getList: {
     getEndpoint: ({ resource }) => resource,
+
+    buildHeaders: async () => buildAuthHeaders(),
 
     buildQueryParams: async ({ resource, pagination, filters }) => {
       const page = pagination?.currentPage ?? 1;
@@ -107,6 +120,8 @@ const options: CreateDataProviderOptions = {
   create: {
     getEndpoint: ({ resource }) => resource,
 
+    buildHeaders: async () => buildAuthHeaders(),
+
     buildBodyParams: async ({ variables }) => variables,
 
     mapResponse: async (response) => {
@@ -123,6 +138,8 @@ const options: CreateDataProviderOptions = {
   getOne: {
     getEndpoint: ({ resource, id }) => `${resource}/${id}`,
 
+    buildHeaders: async () => buildAuthHeaders(),
+
     mapResponse: async (response) => {
       if (!response.ok) {
         throw await buildHttpError(response);
@@ -137,6 +154,8 @@ const options: CreateDataProviderOptions = {
 
 const baseUrl = String(BACKEND_BASE_URL);
 
-const { dataProvider } = createDataProvider(baseUrl, options);
+const { dataProvider } = createDataProvider(baseUrl, options, {
+  credentials: "include",
+});
 
 export { dataProvider };
